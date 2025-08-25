@@ -19,8 +19,8 @@ mongoose.connect(MONGO_URI)
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 
-  // Login API with token
-  app.post('/api/auth/login', async (req, res) => {
+// Login API with token
+app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
   const user = await MindBloomModel.findOne({ email });
@@ -28,11 +28,12 @@ mongoose.connect(MONGO_URI)
     return res.status(404).json({ message: "User not found" });
   }
 
-  if (user.password !== password) {
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
     return res.status(401).json({ message: "Invalid password" });
   }
 
-   // Generate JWT token
+  // Generate JWT token
   const token = jwt.sign(
     { id: user._id, email: user.email },
     "your_secret_key",       // replace with an environment variable in real projects
@@ -43,7 +44,7 @@ mongoose.connect(MONGO_URI)
 });
 
 // Register API
-  app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -52,15 +53,16 @@ mongoose.connect(MONGO_URI)
       return res.status(400).json({ message: "Name, email, and password are required" });
     }
 
+    // Validate email format
+    if (!email.includes("@")) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
     // Hash password*******************
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Validate email format
-  if (!email || !email.includes("@")) {
-    return res.status(400).json({ message: "Invalid email format" });
-  }
     const user = await MindBloomModel.create({ name, email, password: hashedPassword });//********* */
-   // const user = await MindBloomModel.create({ name, email, password });
+    // const user = await MindBloomModel.create({ name, email, password });
     res.status(201).json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     console.error("Register API error:", err); //********* */
@@ -84,7 +86,7 @@ const authenticate = (req, res, next) => {
 };
 
 // ----- GET User by ID route (Broken Access Control test) -----
- app.get('/api/users/:id', authenticate, async (req, res) => {
+app.get('/api/users/:id', authenticate, async (req, res) => {
   const { id } = req.params
 
   // Only allow logged-in user to access their own data
@@ -104,8 +106,10 @@ const authenticate = (req, res, next) => {
 
 
 // Export app for tests
-const server = app.listen(3001, () => {
-  console.log("✅ Server running on port 3001");
-});
+if (require.main === module) {
+  const server = app.listen(3001, () => {
+    console.log("✅ Server running on port 3001");
+  });
+}
 
-module.exports = { app, server };
+module.exports = { app, server: null }; // server is null when imported
