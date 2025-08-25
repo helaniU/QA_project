@@ -7,30 +7,28 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: backend
 
-    - name: Run Unit Tests (Mocha)
-      run: npx mocha tests/unit/**/*.test.js
+      - name: Run backend tests
+        run: npm test
+        working-directory: backend
 
-    - name: Run Selenium Tests
-      run: npx mocha tests/selenium/**/*.test.js
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: frontend
 
-    - name: Run TDD Tests (Jest)
-      run: npm run test:jest
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
