@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "npm run test:unit && npm run test:jest",
     "test:unit": "mocha tests/unit/**/*.test.js",
     "test:jest": "jest tests/auth.test.js",
     "start": "nodemon index.js",
