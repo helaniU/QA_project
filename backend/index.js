@@ -3,6 +3,9 @@ const mongoose = require('mongoose')    //used to connect & work with mongodb
 const cors = require('cors')        //allows backend to be accessed from different frontend domains
 const MindBloomModel = require('./models/Mindbloom')    // Importing our user model (schema) from models folder
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');//******* */
+
 //creating the express app
 const app = express()
 app.use(express.json()) // Middleware: allows the server to read JSON data from requests (req.body)
@@ -16,8 +19,8 @@ mongoose.connect(MONGO_URI)
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 
-  // Login API
-app.post('/api/auth/login', async (req, res) => {
+  // Login API with token
+  app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
   const user = await MindBloomModel.findOne({ email });
@@ -29,11 +32,18 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(401).json({ message: "Invalid password" });
   }
 
-  res.status(200).json({ message: "Login successful" });
+   // Generate JWT token
+  const token = jwt.sign(
+    { id: user._id, email: user.email },
+    "your_secret_key",       // replace with an environment variable in real projects
+    { expiresIn: "1h" }
+  );
+
+  res.status(200).json({ message: "Login successful", token });
 });
 
 // Register API
-app.post('/api/auth/register', async (req, res) => {
+  app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -42,15 +52,53 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: "Name, email, and password are required" });
     }
 
+    // Hash password*******************
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Validate email format
   if (!email || !email.includes("@")) {
     return res.status(400).json({ message: "Invalid email format" });
   }
-
-    const user = await MindBloomModel.create({ name, email, password });
+    const user = await MindBloomModel.create({ name, email, password: hashedPassword });//********* */
+   // const user = await MindBloomModel.create({ name, email, password });
     res.status(201).json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
+    console.error("Register API error:", err); //********* */
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Authentication middleware
+const authenticate = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No token provided" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, "your_secret_key"); // same secret as in login
+    req.user = decoded; // attach decoded info to request
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+// ----- GET User by ID route (Broken Access Control test) -----
+ app.get('/api/users/:id', authenticate, async (req, res) => {
+  const { id } = req.params
+
+  // Only allow logged-in user to access their own data
+  if (req.user.id !== id) {
+    return res.status(403).json({ message: "Forbidden" })
+  }
+
+  try {
+    const user = await MindBloomModel.findById(id).select('-password')
+    if (!user) return res.status(404).json({ message: "User not found" })
+    res.json(user)
+  } catch (err) {
+    console.error("Get User API error:", err); //*********** */
+    res.status(500).json({ message: err.message })
   }
 });
 
