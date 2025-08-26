@@ -6,6 +6,8 @@ const MindBloomModel = require('./models/Mindbloom')    // Importing our user mo
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');//******* */
 
+let server;
+
 //creating the express app
 const app = express()
 app.use(express.json()) // Middleware: allows the server to read JSON data from requests (req.body)
@@ -112,4 +114,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, server: null }; // server is null when imported
+module.exports = { app, server}; 

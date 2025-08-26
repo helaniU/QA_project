@@ -52,5 +52,5 @@ describe("Auth API", () => {
 
 afterAll(async () => {
   await mongoose.connection.close(); // close MongoDB connection
-  server.close();              // close Express server if exported
+  //server.close();              // close Express server if exported
 });
