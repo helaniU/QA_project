@@ -1,1 +1,7 @@
 node_modules/
+# SonarQube secret files
+sonar-secret.properties
+sonar-secret*.properties
+*.sonar-token
+sonar.token
+.env

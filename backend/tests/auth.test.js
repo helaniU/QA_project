@@ -7,14 +7,14 @@ describe("Auth API", () => {
   it("should reject missing name on register", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ name: "", email: "user@example.com", password: "12345" });
+      .send({ name: "", email: "user@example.com", password: process.env.TEST_USER_PASSWORD1 });
     expect(res.status).toBe(400);
   });
 
   it("should reject invalid email on register", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ name: "User", email: "bad-email", password: "Password123" });
+      .send({ name: "User", email: "bad-email", password: process.env.TEST_USER_PASSWORD2 });
     expect(res.status).toBe(400);
     expect(res.body.message).toMatch(/email/i);
   });
@@ -22,7 +22,7 @@ describe("Auth API", () => {
   it("should register user with valid input", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ name: "Test User", email: "user@example.com", password: "Password123" });
+      .send({ name: "Test User", email: "user@example.com", password: process.env.TEST_USER_PASSWORD2 });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body).toHaveProperty("name", "Test User");
@@ -32,11 +32,11 @@ describe("Auth API", () => {
   it("should login with correct credentials", async () => {
     await request(app)
       .post("/api/auth/register")
-      .send({ name: "Test User", email: "test@example.com", password: "Secret123" });
+      .send({ name: "Test User", email: "test@example.com", password: process.env.TEST_USER_PASSWORD3 });
 
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test@example.com", password: "Secret123" });
+      .send({ email: "test@example.com", password: process.env.TEST_USER_PASSWORD3});
 
     expect(res.status).toBe(200);
     expect(res.body.message).toMatch(/success/i);
@@ -45,7 +45,7 @@ describe("Auth API", () => {
   it("should reject login with wrong password", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test@example.com", password: "wrong" });
+      .send({ email: "test@example.com", password: process.env.TEST_USER_PASSWORD4 });
     expect(res.status).toBe(401);
   });
 });

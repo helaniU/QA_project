@@ -1,6 +1,6 @@
-projectKey=QAProjectBackend
+projectKey=QAProjectBackend_v3
 serverUrl=http://localhost:9000
 serverVersion=25.8.0.112029
-dashboardUrl=http://localhost:9000/dashboard?id=QAProjectBackend
-ceTaskId=685987be-8881-4249-a794-a0f2e6de6a02
-ceTaskUrl=http://localhost:9000/api/ce/task?id=685987be-8881-4249-a794-a0f2e6de6a02
+dashboardUrl=http://localhost:9000/dashboard?id=QAProjectBackend_v3
+ceTaskId=78907f28-3600-481f-ac2f-0bd208002680
+ceTaskUrl=http://localhost:9000/api/ce/task?id=78907f28-3600-481f-ac2f-0bd208002680

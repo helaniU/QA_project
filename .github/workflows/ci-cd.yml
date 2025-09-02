@@ -1,5 +1,5 @@
 name: Node.js CI
-
+#pushes and PRs to main
 on:
   push:
     branches: [ main ]
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
 
     services:
       mongodb:
@@ -22,7 +22,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4  
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

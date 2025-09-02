@@ -1,5 +1,7 @@
+const validator = require("validator");
+
 function validateEmail(email) {
-    return /\S+@\S+\.\S+/.test(email);
+  return validator.isEmail(email);
 }
 
 module.exports = { validateEmail };

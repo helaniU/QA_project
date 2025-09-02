@@ -11,5 +11,4 @@ describe('Signup Unit Tests', function() {
     it('should fail for invalid email', function() {
         expect(validateEmail('helaniexample.com')).to.be.false;
     });
-
 });
